@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>깃허브·넷리파이 배포 가이드 — 먹이그물 탐험대로 따라 하기</title>
+<meta name="description" content="제미나이로 로고·버튼·그림을 만들고, 깃허브 Pages와 넷리파이로 내 수업 앱에 주소를 다는 방법 (실제 화면 캡처)">
+<link rel="icon" href="../images/org/frog.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2d2a26;--paper:#fffbef;--leaf:#5bb342;--leaf-d:#3e8a2c;--sky:#6ec6f0;--sun:#ffd54a;--orange:#ff8a3d;--red:#e85d4f;--muted:#6b645a;--line:#e3d9c2;--gh:#24292f;--nf:#05bdba}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Gowun Dodum",system-ui,"Malgun Gothic",sans-serif;color:var(--ink);background:var(--paper);line-height:1.7;font-size:17px}
+h1,h2,h3,.jua{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400;line-height:1.3}
+a{color:#1f6fb2}
+.hero{background:url(../images/bg.jpg) center 70%/cover;border-bottom:3px solid var(--ink);position:relative}
+.hero .in{max-width:1080px;margin:0 auto;padding:36px 20px 40px;display:flex;gap:24px;align-items:center}
+.hero img.logo{width:min(220px,34vw);filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))}
+.hero .card{background:rgba(255,255,255,.93);border:3px solid var(--ink);border-radius:24px;padding:18px 22px;box-shadow:0 5px 0 rgba(45,42,38,.9)}
+.hero h1{margin:0 0 6px;font-size:clamp(26px,4vw,40px)}
+.hero p{margin:0;font-size:16px}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.lbtn{display:inline-flex;align-items:center;gap:6px;font-family:Jua;text-decoration:none;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 14px;box-shadow:0 3px 0 rgba(45,42,38,.9);font-size:16px}
+.lbtn.gh{background:var(--gh);color:#fff}.lbtn.nf{background:var(--nf);color:#043b3a}.lbtn.app{background:var(--sun)}
+nav.toc{position:sticky;top:0;z-index:10;background:rgba(255,251,239,.96);border-bottom:2px solid var(--line);backdrop-filter:blur(4px)}
+nav.toc .in{max-width:1080px;margin:0 auto;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;white-space:nowrap}
+nav.toc a{font-family:Jua;text-decoration:none;color:var(--ink);padding:5px 12px;border-radius:999px;border:2px solid transparent;font-size:15px}
+nav.toc a:hover{border-color:var(--ink);background:#fff}
+main{max-width:1080px;margin:0 auto;padding:10px 18px 80px}
+section{margin:44px 0}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.sec-head .badge{flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:Jua;font-size:26px;color:#fff;border:3px solid var(--ink);box-shadow:0 3px 0 rgba(45,42,38,.9)}
+.sec-head h2{margin:0;font-size:clamp(24px,3.4vw,32px)}
+.sec-head p{margin:0;color:var(--muted);font-size:15px}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0}
+.flow div{background:#fff;border:3px solid var(--ink);border-radius:18px;padding:12px 10px;text-align:center;box-shadow:0 3px 0 rgba(45,42,38,.85);position:relative}
+.flow div b{display:block;font-family:Jua;font-weight:400;font-size:19px}
+.flow div small{color:var(--muted);font-size:13px;line-height:1.4;display:block}
+.flow div img{width:56px;height:56px;object-fit:contain}
+.flow div:not(:last-child):after{content:"→";position:absolute;right:-17px;top:42%;font-family:Jua;font-size:24px;color:var(--orange);z-index:2}
+.step{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);min-width:0;gap:20px;align-items:start;background:#fff;border:3px solid var(--ink);border-radius:22px;padding:18px;margin:16px 0;box-shadow:0 4px 0 rgba(45,42,38,.9)}
+.step.wide{grid-template-columns:minmax(0,1fr)}
+.step h3{margin:0 0 6px;font-size:22px;display:flex;gap:10px;align-items:center}
+.step h3 .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;font-size:18px;border:2px solid var(--ink)}
+.step ol,.step ul{margin:6px 0;padding-left:22px}
+.step li{margin:3px 0}
+.shot{margin:0}
+.shot img{width:100%;border:2px solid #cfc5ad;border-radius:12px;display:block;background:#fff}
+.shot figcaption{font-size:13px;color:var(--muted);margin-top:4px;text-align:center}
+.tip,.warn,.note{border-radius:14px;padding:10px 14px;margin:10px 0;font-size:15.5px;border:2px solid}
+.tip{background:#f1fbe8;border-color:#9fd27f}
+.warn{background:#fff3f0;border-color:#f2a59b}
+.note{background:#eef7fd;border-color:#9cc9e8}
+.tip b,.warn b,.note b{font-family:Jua;font-weight:400;font-size:17px}
+kbd,.k{font-family:inherit;background:#fff4d6;border:2px solid var(--ink);border-bottom-width:3px;border-radius:7px;padding:0 6px;font-size:14px;white-space:nowrap}
+code{background:#f4efe2;border-radius:6px;padding:1px 6px;font-size:.92em}
+.prompt{position:relative;background:#272822;color:#f8f8f2;border-radius:14px;padding:14px 16px 14px;margin:8px 0;font-size:14.5px;line-height:1.65;white-space:pre-wrap;font-family:"Gowun Dodum",ui-monospace,monospace;border:3px solid var(--ink)}
+.prompt .copy{position:absolute;right:8px;top:8px;font-family:Jua;font-size:14px;background:var(--sun);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:2px 12px;cursor:pointer}
+.prompt .tag{display:inline-block;font-family:Jua;background:var(--leaf);color:#fff;border-radius:999px;padding:0 10px;font-size:13px;margin-bottom:6px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin:12px 0}
+.gallery figure{margin:0;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:10px;box-shadow:0 3px 0 rgba(45,42,38,.85)}
+.gallery img{width:100%;border-radius:10px;display:block}
+.gallery figcaption{font-family:Jua;font-size:16px;margin-top:6px;text-align:center}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ba figure{margin:0;text-align:center}
+.ba img{width:100%;max-width:340px;border:3px solid var(--ink);border-radius:16px}
+.ba .x{color:var(--red);font-family:Jua;font-size:18px}.ba .o{color:var(--leaf-d);font-family:Jua;font-size:18px}
+.tree{background:#fff;border:2px dashed #c9bd9f;border-radius:14px;padding:12px 16px;font-family:ui-monospace,Consolas,monospace;font-size:14.5px;line-height:1.6;white-space:pre;overflow-x:auto}
+table.cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:3px solid var(--ink);border-radius:18px;overflow:hidden;font-size:15.5px}
+table.cmp th,table.cmp td{padding:10px 12px;border-bottom:2px solid var(--line);vertical-align:top;text-align:left}
+table.cmp tr:last-child td{border-bottom:0}
+table.cmp th{font-family:Jua;font-weight:400;font-size:18px;background:#fff4d6}
+table.cmp th.gh{background:var(--gh);color:#fff}table.cmp th.nf{background:var(--nf);color:#043b3a}
+.qa details{background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px;margin:8px 0}
+.qa summary{font-family:Jua;font-size:18px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{background:#fff;border:2px solid var(--ink);border-radius:999px;padding:2px 12px;font-size:14px}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:30px 16px 50px;border-top:2px solid var(--line)}
+@media (max-width:820px){
+  .step,.step.wide{grid-template-columns:minmax(0,1fr)}
+  .tree{font-size:12.5px}
+  .prompt{font-size:13.5px}
+  .flow{grid-template-columns:1fr 1fr}
+  .flow div:after{display:none}
+  .hero .in{flex-direction:column;text-align:center}
+  .ba{grid-template-columns:1fr}
+}
+@media print{nav.toc,.copy{display:none}.step{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="in">
+    <img class="logo" src="../images/logo.png" alt="먹이그물 탐험대 로고">
+    <div class="card">
+      <h1>내 수업 앱에 '주소' 달기</h1>
+      <p>제미나이로 <b>로고·버튼·그림</b>을 만들고, <b>깃허브 Pages</b>와 <b>넷리파이</b>로 세상에 내보내는 방법을<br>
+      4학년 과학 「생물과 환경」 예시 앱 <b>먹이그물 탐험대</b>를 실제로 만들며 캡처했습니다.</p>
+      <div class="links">
+        <a class="lbtn app" href="../">🕸️ 완성된 앱 열기</a>
+        <a class="lbtn gh" href="https://github.com/hongdonedu/foodweb">깃허브 저장소</a>
+        <a class="lbtn nf" href="https://foodweb-4th-science.netlify.app/">넷리파이 주소</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="in">
+  <a href="#overview">한눈에</a><a href="#gemini-img">①제미나이 그림</a><a href="#app">②앱에 넣기</a><a href="#github">③깃허브</a><a href="#pages">④Pages 켜기</a><a href="#netlify">⑤넷리파이</a><a href="#update">⑥고치기</a><a href="#share">⑦나누기</a><a href="#compare">비교·주의</a>
+</div></nav>
+
+<main>
+
+<!-- ================= 한눈에 ================= -->
+<section id="overview">
+  <div class="sec-head"><div class="badge" style="background:var(--leaf)">🗺️</div><div><h2>한눈에 보는 흐름</h2><p>지난 실습의 ②HTML 저장형(포장)에서 한 걸음 더 — 파일에 <b>주소</b>를 달아 줍니다.</p></div></div>
+  <div class="flow">
+    <div><img src="../images/env/earth.png" alt=""><b>만들기</b><small>제미나이 캔버스로 index.html</small></div>
+    <div><img src="../images/org/sun.png" alt=""><b>꾸미기</b><small>제미나이로 로고·버튼·그림</small></div>
+    <div><img src="../images/env/recycle.png" alt=""><b>모으기</b><small>index.html + images 폴더</small></div>
+    <div><img src="../images/org/frog.png" alt=""><b>올리기</b><small>깃허브 저장소 / 넷리파이</small></div>
+    <div><img src="../images/org/hawk.png" alt=""><b>나누기</b><small>주소·QR을 학생에게</small></div>
+  </div>
+  <div class="note"><b>왜 주소가 필요할까요?</b> 제미나이 공유 링크는 계정·설정에 따라 사라지거나 열리지 않을 수 있고, HTML 파일은 학생 기기마다 옮겨야 합니다. 깃허브·넷리파이에 올리면 <b>무료로, 내 이름이 들어간 주소</b>가 생겨 QR 하나로 반 전체가 접속합니다.</div>
+  <div class="chips"><span class="chip">준비물: 구글 계정(제미나이)</span><span class="chip">깃허브 계정(무료)</span><span class="chip">넷리파이 계정(무료, 깃허브로 가입 가능)</span></div>
+</section>
+
+<!-- ================= ① 제미나이 그림 ================= -->
+<section id="gemini-img">
+  <div class="sec-head"><div class="badge" style="background:#4285f4">①</div><div><h2>제미나이로 로고·버튼·그림 만들기</h2><p>한 대화방에서 이어서 만들면 그림체가 통일됩니다. "같은 그림체로"를 꼭 붙이세요.</p></div></div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">1</span>이미지 만들기 켜기</h3>
+      <ol><li>gemini.google.com 접속</li><li>입력창 왼쪽 <span class="k">＋</span> 누르기</li><li><b>이미지 만들기</b> 선택 → 입력창에 '이미지' 칩이 생기면 준비 끝</li></ol>
+      <div class="tip"><b>팁</b> 모델은 <b>Pro</b>가 한글 글씨를 더 정확하게 씁니다. 버튼에 '탐험 시작'처럼 한글이 들어가도 깨지지 않았어요.</div>
+    </div>
+    <figure class="shot"><img src="shots/g1_plus_image.jpg" alt="제미나이 + 메뉴에서 이미지 만들기 선택"><figcaption>＋ → 이미지 만들기</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">2</span>로고 주문하기</h3>
+      <p>무엇을, 어디에, 어떤 색·그림체로, 배경은 어떻게 — 네 가지를 한 문단에 씁니다.</p>
+      <div class="prompt"><span class="tag">로고 프롬프트</span><button class="copy">복사</button>
+초등학교 4학년 과학 웹앱 「먹이그물 탐험대」의 로고를 그려 줘. 가운데에는 둥근 배지 안에 벼 → 메뚜기 → 개구리 → 매가 화살표로 이어진 모습, 아래에는 굵고 귀여운 한글 글씨 '먹이그물 탐험대'. 밝은 초록·하늘색·노란색을 쓰고 두꺼운 외곽선의 스티커 그림체로. 배경은 아무것도 없는 단색 흰색, 정사각형.</div>
+    </div>
+    <figure class="shot"><img src="shots/g2_prompt.jpg" alt="로고 프롬프트 입력 화면"><figcaption>프롬프트 입력 → 보내기</figcaption></figure>
+  </div>
+
+  <div class="step wide">
+    <div>
+      <h3><span class="n">3</span>과학 선생님의 눈으로 검토하고 고쳐 달라고 하기</h3>
+      <p>첫 결과는 예뻤지만 <b>벼 → 개구리</b>, 양쪽 화살표처럼 <b>과학적으로 틀린 화살표</b>가 있었습니다. 지도서 기준(화살표는 <b>먹히는 생물 → 먹는 생물</b>)을 알려 주고 고쳐 달라고 했더니 바로 고쳐졌어요.</p>
+      <div class="prompt"><span class="tag">수정 프롬프트</span><button class="copy">복사</button>
+좋아! 그런데 과학적으로 틀린 화살표가 있어. 화살표는 '먹히는 생물 → 먹는 생물' 방향이야. 벼→메뚜기, 메뚜기→개구리, 개구리→매 이렇게 한 방향 화살표 3개만 남기고 나머지 화살표(벼→개구리, 양쪽 화살표, 메뚜기→매)는 모두 지워 줘. 나머지 그림과 글씨는 그대로.</div>
+    </div>
+    <div class="ba">
+      <figure><img src="shots/gem_logo_before.jpg" alt="고치기 전 로고"><figcaption class="x">✗ 처음 결과 — 틀린 화살표 3개</figcaption></figure>
+      <figure><img src="shots/gem_logo_after.jpg" alt="고친 뒤 로고"><figcaption class="o">✓ 고친 결과 — 벼→메뚜기→개구리→매</figcaption></figure>
+    </div>
+    <div class="warn"><b>꼭 확인!</b> AI 그림은 그럴듯하지만 틀릴 수 있어요. 화살표 방향, 생물의 생김새, 글자 맞춤법은 <b>교사가 최종 검토</b>합니다. 이 장면 자체가 좋은 수업 소재가 됩니다.</div>
+  </div>
+
+  <div class="step wide">
+    <h3><span class="n">4</span>같은 대화방에서 버튼·배경·스티커·캐릭터 이어서 주문하기</h3>
+    <div class="gallery">
+      <figure><img src="shots/gem_buttons.jpg" alt=""><figcaption>버튼 4개</figcaption></figure>
+      <figure><img src="shots/gem_bg.jpg" alt=""><figcaption>첫 화면 배경 (16:9)</figcaption></figure>
+      <figure><img src="shots/gem_sheetA.jpg" alt=""><figcaption>생물 스티커 16개</figcaption></figure>
+      <figure><img src="shots/gem_sheetB.jpg" alt=""><figcaption>생물·비생물 스티커 16개</figcaption></figure>
+      <figure><img src="shots/gem_sheetC.jpg" alt=""><figcaption>환경 스티커 16개</figcaption></figure>
+      <figure><img src="shots/gem_guide.jpg" alt=""><figcaption>안내 캐릭터 포즈 3개</figcaption></figure>
+    </div>
+    <div class="prompt"><span class="tag">버튼</span><button class="copy">복사</button>
+고마워! 이제 같은 그림체로 이 웹앱에 쓸 게임 버튼 4개를 한 장에 그려 줘. 위에서부터 한 줄에 하나씩: ① 초록색 '탐험 시작' ② 하늘색 '다음' ③ 주황색 '다시 하기' ④ 노란색 '정답 확인'. 둥근 알약 모양에 살짝 입체감, 글씨는 흰색 굵은 한글(정답 확인만 갈색 글씨), 버튼 사이 간격은 넉넉하게, 배경은 아무것도 없는 단색 흰색.</div>
+    <div class="prompt"><span class="tag">배경</span><button class="copy">복사</button>
+좋아! 이번에는 같은 그림체로 웹앱 첫 화면 배경 그림을 16:9 가로로 그려 줘. 왼쪽은 숲과 풀밭, 가운데 아래는 논, 오른쪽은 연못이 있는 맑은 날의 풍경. 동물과 글씨는 넣지 말고 풍경만, 가운데 윗부분은 제목을 올릴 수 있게 하늘을 넓게 비워 둬. 색은 밝고 부드럽게.</div>
+    <div class="prompt"><span class="tag">스티커 시트</span><button class="copy">복사</button>
+이번에는 같은 그림체로 생물 스티커 16개를 4×4 격자로 한 장에 그려 줘(정사각형). 스티커마다 두꺼운 흰 테두리, 스티커끼리 겹치지 않게 간격 넉넉하게, 배경은 단색 마젠타(#FF00FF), 글씨는 넣지 마. 각 생물은 전신이 다 보이게. 순서: 1줄 벼, 배추, 검정말(물속 수초), 식물성 플랑크톤 / 2줄 메뚜기, 배추흰나비 애벌레, 토끼, 새우 / 3줄 참새, 개구리, 붕어, 오리 / 4줄 다람쥐, 뱀, 왜가리, 매.</div>
+    <div class="prompt"><span class="tag">캐릭터</span><button class="copy">복사</button>
+마지막으로 같은 그림체로 앱의 안내 캐릭터를 그려 줘. 초록 탐험 모자와 카키색 조끼를 입은 귀여운 초등학생 탐험대장(돋보기를 들고 있음). 한 장에 같은 캐릭터 포즈 3개를 가로로 나란히: ① 손 흔들며 인사 ② 엄지 척 칭찬 ③ 돋보기로 관찰하며 고민하는 표정. 두꺼운 흰 테두리 스티커, 포즈끼리 겹치지 않게, 배경은 단색 마젠타(#FF00FF), 분홍·보라색은 쓰지 마, 글씨 없음, 16:9 가로.</div>
+    <div class="tip"><b>왜 마젠타(분홍보라) 배경?</b> 자연물에는 거의 없는 색이라 나중에 배경만 쏙 지우기 쉽습니다. 흰 배경도 괜찮아요. 그림을 <b>흰 카드 안</b>에 넣는 디자인이면 배경을 지우지 않아도 자연스럽습니다.</div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">5</span>내려받고 이름 붙이기</h3>
+      <ol>
+        <li>그림 위에 마우스를 올리면 나오는 <b>⬇ 원본 크기 다운로드</b> 누르기</li>
+        <li>내려받은 파일 이름을 <b>영어 소문자</b>로 바꾸기<br><code>logo.png</code> <code>bg.jpg</code> <code>btn_start.png</code> …</li>
+        <li>스티커 시트는 한 장씩 잘라 <code>frog.png</code>처럼 저장<br>(캔바 ▶ 사진 업로드 ▶ <b>자르기</b>·<b>배경 제거</b> → PNG 다운로드)</li>
+        <li>앱 폴더 안 <code>images</code> 폴더에 모으기</li>
+      </ol>
+      <div class="warn"><b>이름 규칙</b> 한글·띄어쓰기·대문자는 피하세요. 깃허브 주소에서는 <code>Logo.png</code>와 <code>logo.png</code>가 <b>다른 파일</b>입니다.</div>
+    </div>
+    <div>
+      <div class="tree">먹이그물탐험대/          ← 이 폴더째 올립니다
+├─ index.html           ← 첫 화면 (이름 그대로!)
+└─ images/
+   ├─ logo.png   bg.jpg
+   ├─ btn_start.png  btn_next.png  btn_retry.png  btn_check.png
+   ├─ guide_hi.png  guide_good.png  guide_think.png
+   ├─ org/  frog.png  hawk.png  rice.png … (32개)
+   └─ env/  factory.png  recycle.png … (16개)</div>
+      <figure class="shot" style="margin-top:10px"><img src="../images/btn_start.png" alt="" style="max-width:260px;border:0;margin:0 auto;background:none"><figcaption>배경을 지운 버튼 (btn_start.png)</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ② 앱에 넣기 ================= -->
+<section id="app">
+  <div class="sec-head"><div class="badge" style="background:var(--orange)">②</div><div><h2>그림을 앱에 넣는 프롬프트 — 파일 이름으로 부른다</h2><p>AI는 내 컴퓨터 그림을 볼 수 없어요. 대신 <b>파일 이름과 위치</b>를 알려 주면 그 자리에 넣는 코드를 써 줍니다.</p></div></div>
+  <div class="step wide">
+    <div class="prompt"><span class="tag">처음부터 그림을 넣어 만들기 (제미나이 캔버스)</span><button class="copy">복사</button>
+너는 초등학교 과학 선생님을 돕는 웹 개발자야. 4학년 2학기 과학 '생물과 환경' 단원에서 쓸 '먹이그물 탐험대' 웹앱을 HTML 파일 하나(index.html)로 만들어 줘.
+성취기준: [4과14-01] 생태계 구성 요소를 생물 요소와 비생물 요소로 분류 / [4과14-02] 먹고 먹히는 관계를 먹이그물로 표현 / [4과14-03] 인간 활동의 영향과 생태계 보전
+
+[미션]
+1. 생물 요소·비생물 요소 바구니에 카드 나누기 (햇빛, 물, 공기, 흙, 온도 / 소나무, 버섯, 개구리 …)
+2. 생산자·소비자·분해자로 나누기 (분해자는 버섯·곰팡이·세균만)
+3. 먹이사슬 잇기: 벼 → 메뚜기 → 개구리 → 매 (네 칸에 순서대로)
+4. 먹이그물 만들기: 먹히는 생물을 먼저 누르고 먹는 생물을 누르면 화살표가 생김
+5. 개구리가 사라지면? 먹이사슬 마을과 먹이그물 마을 비교
+6. 대기·수질·토양오염 나누기, 실천 다짐 카드 만들기
+
+[지도서 기준] 화살표는 '먹히는 생물 → 먹는 생물' / 광합성 원리는 설명하지 않기 / '생태계평형' 용어는 쓰지 않기
+
+[그림] index.html과 같은 위치의 images 폴더에 그림이 있어. 이 파일 이름 그대로 불러 와 줘.
+- images/logo.png : 첫 화면 가운데 로고 (가로 최대 380px)
+- images/bg.jpg : 첫 화면 전체 배경
+- images/btn_start.png : 탐험 시작 버튼 / images/btn_check.png : 정답 확인 / images/btn_retry.png : 다시 하기 / images/btn_next.png : 다음
+- images/guide_hi.png, guide_good.png, guide_think.png : 안내 캐릭터 (인사, 칭찬, 고민)
+- images/org/영어이름.png : 생물 카드 (frog=개구리, hawk=매, rice=벼, grasshopper=메뚜기 …)
+
+[디자인] 둥근 카드, 두꺼운 검은 테두리의 스티커 느낌, 태블릿·전자칠판에서도 크게 보이게
+[저장] 진행 기록은 localStorage에만 저장(서버로 보내지 않기)</div>
+    <div class="prompt"><span class="tag">이미 만든 앱에 그림만 덧붙이기</span><button class="copy">복사</button>
+지금 앱의 기능은 그대로 두고 그림만 넣어 줘. 그림은 index.html과 같은 위치의 images 폴더에 있어.
+- 첫 화면 제목 글자 대신 images/logo.png
+- '시작' 버튼은 images/btn_start.png 그림 버튼으로 (글자는 alt로)
+- 맞혔을 때는 images/guide_good.png, 틀렸을 때는 images/guide_think.png 캐릭터가 말풍선과 함께 나오게
+바뀐 index.html 전체 코드를 생략 없이 다시 보여 줘.</div>
+    <div class="note"><b>캔버스 미리보기에서 그림이 깨져 보여요!</b> 정상입니다. 캔버스는 내 컴퓨터의 images 폴더를 볼 수 없어요. <b>내보내기 → 코드 다운로드</b>로 받은 index.html을 images 폴더 옆에 두고 열면(또는 깃허브에 올리면) 그림이 보입니다.</div>
+  </div>
+</section>
+
+<!-- ================= ③ 깃허브 ================= -->
+<section id="github">
+  <div class="sec-head"><div class="badge" style="background:var(--gh)">③</div><div><h2>깃허브에 올리기 — 인터넷 사물함 만들기</h2><p>저장소(repository) = 앱 파일을 넣어 두는 인터넷 사물함. 공개(Public)로 만들면 무료로 웹 주소를 받을 수 있어요.</p></div></div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">0</span>가입하기 (처음 한 번)</h3>
+      <ol><li>github.com → <b>Sign up</b></li><li>이메일 → 비밀번호 → <b>사용자 이름(username)</b> 정하기</li><li>메일로 온 인증 코드 입력</li></ol>
+      <div class="warn"><b>사용자 이름 = 앱 주소</b> <code>사용자이름.github.io/저장소이름/</code>이 됩니다. 학생에게 보여 줄 주소이니 짧고 알아보기 쉽게! (예: <code>hongdonedu</code>)<br>나중에 Settings → Account → <b>Change username</b>으로 바꿀 수 있지만, 그러면 기존 주소도 모두 바뀝니다.</div>
+    </div>
+    <figure class="shot"><img src="shots/h12_site.jpg" alt="완성된 앱 화면"><figcaption>최종 목표: hongdonedu.github.io/foodweb/</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">1</span>새 저장소 만들기</h3>
+      <p>오른쪽 위 <span class="k">＋</span> → <b>New repository</b></p>
+    </div>
+    <figure class="shot"><img src="shots/h1_new_repo.jpg" alt="+ 메뉴 New repository"><figcaption>① ＋ 누르기 → ② New repository</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">2</span>이름 짓고 공개로 만들기</h3>
+      <ol>
+        <li><b>Repository name</b>: 영어 소문자·숫자·하이픈 (<code>foodweb</code>) → 초록색 <b>is available</b> 확인</li>
+        <li>Description(설명)은 한글로 자유롭게</li>
+        <li><b>Public</b> 그대로 두기 (무료 Pages는 공개 저장소에서만)</li>
+        <li>초록 <b>Create repository</b></li>
+      </ol>
+      <div class="tip"><b>저장소 이름 = 주소 뒷부분</b> 단원별로 <code>light-maze</code>, <code>life-farm</code>, <code>foodweb</code>처럼 짧게 지으면 학생도 기억하기 쉬워요.</div>
+    </div>
+    <figure class="shot"><img src="shots/h2_form.jpg" alt="새 저장소 만들기 양식"><figcaption>① 이름 ② Public ③ Create repository</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">3</span>파일 올리는 화면으로</h3>
+      <p>빈 저장소 화면의 <b>uploading an existing file</b> 링크를 누릅니다.<br>(파일이 이미 있는 저장소라면 <b>Add file → Upload files</b>)</p>
+    </div>
+    <figure class="shot"><img src="shots/h3_empty.jpg" alt="빈 저장소의 uploading an existing file 링크"><figcaption>빈 저장소 → uploading an existing file</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">4</span>폴더 안의 것을 모두 끌어다 놓기</h3>
+      <ol>
+        <li>파일 탐색기에서 앱 폴더를 열고 <span class="k">Ctrl</span>+<span class="k">A</span>로 <b>index.html과 images 폴더를 모두 선택</b></li>
+        <li>점선 상자 안으로 끌어다 놓기</li>
+        <li>파일 목록에 <code>images/logo.png</code>처럼 <b>폴더 이름까지</b> 보이면 성공</li>
+      </ol>
+      <div class="warn"><b>폴더 자체를 끌면?</b> <code>먹이그물탐험대/index.html</code>처럼 한 단계 안에 들어가 주소가 길어져요. 폴더를 <b>열고 그 안의 내용물</b>을 끌어 주세요. (한 번에 100개까지)</div>
+    </div>
+    <figure class="shot"><img src="shots/h4_upload.jpg" alt="Drag files here 업로드 화면"><figcaption>Drag files here to add them to your repository</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">5</span>목록 확인 → Commit changes</h3>
+      <ol>
+        <li>58개 파일이 올라간 것 확인 (index.html이 맨 위)</li>
+        <li>맨 아래 <b>Commit changes</b> 칸에 무엇을 올렸는지 한 줄 메모 (생략해도 됨)</li>
+        <li>초록 <b>Commit changes</b> 누르기 = 저장 완료</li>
+      </ol>
+      <figure class="shot" style="margin-top:8px"><img src="shots/h6_commit.jpg" alt="Commit changes"><figcaption>① 메모 ② Commit changes</figcaption></figure>
+    </div>
+    <figure class="shot"><img src="shots/h5_listed.jpg" alt="업로드된 파일 목록"><figcaption>images/… 폴더 구조 그대로 올라감</figcaption></figure>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="n">6</span>저장소에 들어갔는지 확인</h3>
+      <p><code>images</code> 폴더, <code>index.html</code>이 보이면 성공. 이제 사물함은 채웠고, 다음 단계에서 <b>가게 문(웹 주소)</b>을 엽니다.</p>
+      <div class="warn"><b>index.html 이름 확인!</b> <code>index.html.html</code>이나 <code>Index.html</code>이면 주소로 열리지 않아요. 파일을 눌러 ✏️ → 이름 칸에서 고칠 수 있어요.</div>
+    </div>
+    <figure class="shot"><img src="shots/h7_files.jpg" alt="업로드된 저장소"><figcaption>업로드 완료된 저장소</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= ④ Pages ================= -->
+<section id="pages">
+  <div class="sec-head"><div class="badge" style="background:#8250df">④</div><div><h2>GitHub Pages 켜기 — 가게 문 열기</h2><p>설정 한 번이면 저장소가 웹사이트가 됩니다. 1~2분 뒤 주소가 생겨요.</p></div></div>
+  <div class="step">
+    <div>
+      <h3><span class="n">1</span>Settings → Pages</h3>
+      <p>저장소 위쪽 <b>Settings</b>(⚙️, 좁은 화면에서는 <b>More</b> 안) → 왼쪽 메뉴 <b>Pages</b> → Branch의 <b>None</b>을 누릅니다.</p>
+    </div>
+    <figure class="shot"><img src="shots/h8_pages.jpg" alt="Settings Pages 화면"><figcaption>① Pages ② None 누르기</figcaption></figure>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="n">2</span>main → / (root) → Save</h3>
+      <ol><li>목록에서 <b>main</b> 선택</li><li>폴더는 <b>/ (root)</b> 그대로</li><li><b>Save</b></li></ol>
+      <figure class="shot"><img src="shots/h9_main.jpg" alt="main 선택"><figcaption>main 선택</figcaption></figure>
+    </div>
+    <figure class="shot"><img src="shots/h10_save.jpg" alt="main root Save"><figcaption>① main ② / (root) ③ Save</figcaption></figure>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="n">3</span>1~2분 뒤 새로고침 → 주소 확인</h3>
+      <p><b>Your site is live at</b> 옆의 주소가 내 앱 주소입니다. <b>Visit site</b>로 열어 보세요.</p>
+      <div class="tree" style="font-size:15px">https://<b>hongdonedu</b>.github.io/<b>foodweb</b>/
+        └ 사용자 이름      └ 저장소 이름</div>
+      <div class="tip"><b>안 열리면?</b> 1~2분 더 기다린 뒤 <span class="k">Ctrl</span>+<span class="k">F5</span>. 저장소 위 <b>Actions</b> 탭에서 초록 체크(✓)가 뜨면 배포 완료입니다.</div>
+    </div>
+    <figure class="shot"><img src="shots/h11_live.jpg" alt="Your site is live"><figcaption>Your site is live at … / Visit site</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= ⑤ 넷리파이 ================= -->
+<section id="netlify">
+  <div class="sec-head"><div class="badge" style="background:var(--nf)">⑤</div><div><h2>넷리파이 — 폴더 끌어다 놓으면 끝</h2><p>깃허브 없이도 OK. 폴더를 끌어다 놓으면 몇 초 만에 <code>○○.netlify.app</code> 주소가 생깁니다.</p></div></div>
+  <div class="step">
+    <div>
+      <h3><span class="n">1</span>로그인 (깃허브 계정으로)</h3>
+      <p>app.netlify.com → <b>Log in with GitHub</b> (처음이면 Sign up → GitHub). 계정을 하나 더 만들 필요가 없어요.</p>
+    </div>
+    <figure class="shot"><img src="shots/n0_login.jpg" alt="넷리파이 로그인"><figcaption>Log in with GitHub</figcaption></figure>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="n">2</span>Add new project → 폴더 끌어다 놓기</h3>
+      <ol>
+        <li>Projects 화면의 <b>Add new project</b></li>
+        <li>아래쪽 <b>Upload your project files</b> 상자에 <b>앱 폴더째</b> 끌어다 놓기<br>(넷리파이는 폴더째 놓아도 됩니다 · zip 파일, HTML 파일 하나도 가능)</li>
+      </ol>
+      <div class="note"><b>② GitHub 버튼은?</b> 깃허브 저장소와 연결하면 깃허브에 고친 파일을 올릴 때마다 넷리파이도 <b>자동으로 업데이트</b>됩니다. (처음 한 번 깃허브 접근 허용 창이 떠요)</div>
+    </div>
+    <figure class="shot"><img src="shots/n1_new.jpg" alt="넷리파이 새 프로젝트"><figcaption>① 끌어다 놓기 ② (심화) GitHub 연결</figcaption></figure>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="n">3</span>공개 완료 — 이름만 바꾸면 끝</h3>
+      <p>Published! 처음에는 <code>storied-bunny-cc5944</code>처럼 <b>무작위 이름</b>이 붙어요. <b>Project configuration</b>에서 바꿉니다.</p>
+      <figure class="shot"><img src="shots/n3_config.jpg" alt="Change project name"><figcaption>Project configuration → Change project name</figcaption></figure>
+    </div>
+    <figure class="shot"><img src="shots/n2_published.jpg" alt="넷리파이 배포 완료"><figcaption>① 주소 ② Project configuration</figcaption></figure>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="n">4</span>알아보기 쉬운 이름으로</h3>
+      <ol><li>영어 소문자·숫자·하이픈으로 입력 → <b>Project name is available</b> 확인</li><li><b>Save</b></li></ol>
+      <p>➜ <a href="https://foodweb-4th-science.netlify.app/">https://foodweb-4th-science.netlify.app</a></p>
+      <div class="warn"><b>이미 있는 이름</b>이면 "not available"이 떠요. 학교·단원 이름을 붙여 보세요. (예: <code>foodweb-explorer</code>는 이미 사용 중이라 <code>foodweb-4th-science</code>로 정함)</div>
+    </div>
+    <figure class="shot"><img src="shots/n4_rename.jpg" alt="프로젝트 이름 바꾸기"><figcaption>① 새 이름 ② Save</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= ⑥ 고치기 ================= -->
+<section id="update">
+  <div class="sec-head"><div class="badge" style="background:var(--red)">⑥</div><div><h2>고치고 다시 올리기</h2><p>주소는 그대로, 내용만 바뀝니다. 학생에게 QR을 다시 줄 필요가 없어요.</p></div></div>
+  <div class="step wide">
+    <div style="overflow-x:auto"><table class="cmp">
+      <tr><th style="width:18%"></th><th class="gh">깃허브 Pages</th><th class="nf">넷리파이</th></tr>
+      <tr><td><b>파일 바꾸기</b></td><td>바꿀 파일이 있는 폴더로 들어가 <b>Add file → Upload files</b> → 같은 이름 파일을 끌어다 놓기 → Commit changes (같은 이름이면 덮어쓰기)</td><td>프로젝트 화면의 <b>Already built it? Drop a folder</b> 상자에 고친 폴더를 다시 끌어다 놓기</td></tr>
+      <tr><td><b>글자만 살짝</b></td><td>index.html 열기 → ✏️(Edit) → 고치기 → Commit changes</td><td>폴더를 다시 끌어다 놓기 (또는 깃허브 연결 시 자동)</td></tr>
+      <tr><td><b>반영 시간</b></td><td>1~2분 (Actions 탭 초록 ✓)</td><td>몇 초</td></tr>
+      <tr><td><b>되돌리기</b></td><td>파일 → History에서 이전 버전 확인</td><td>Deploys에서 이전 배포 <b>Publish deploy</b></td></tr>
+    </table></div>
+    <div class="step" style="box-shadow:none;border-width:2px;margin:14px 0 0">
+      <div><h3><span class="n">✓</span>깃허브에서 다시 올리기</h3><p>저장소에서 <b>＋(Add file) → Upload files</b> → 고친 파일 끌어다 놓기 → Commit changes. 오른쪽 <b>Deployments · github-pages</b>에 초록 ✓가 뜨면 반영 완료!</p></div>
+      <figure class="shot"><img src="shots/h13_addfile.jpg" alt="Add file Upload files 메뉴"><figcaption>① ＋ ② Upload files</figcaption></figure>
+    </div>
+    <div class="tip"><b>바뀐 게 안 보여요!</b> 브라우저가 예전 화면을 기억(캐시)하고 있어요. <span class="k">Ctrl</span>+<span class="k">F5</span> 또는 시크릿 창으로 확인하세요.</div>
+  </div>
+</section>
+
+<!-- ================= ⑦ 나누기 ================= -->
+<section id="share">
+  <div class="sec-head"><div class="badge" style="background:var(--leaf-d)">⑦</div><div><h2>학생에게 나누기</h2><p>주소 하나면 태블릿·크롬북·휴대폰 어디서나.</p></div></div>
+  <div class="step">
+    <div>
+      <ul>
+        <li><b>QR 코드</b>: 크롬에서 앱 주소를 연 뒤 주소창 오른쪽 <b>공유(⤴) → QR 코드 만들기</b> → 전자칠판에 띄우기</li>
+        <li><b>패들렛·클래스룸</b>: 링크 게시물로 올리기 (미리보기 그림이 자동으로 붙어요)</li>
+        <li><b>학급 홈페이지·알림장</b>: 주소 붙여 넣기</li>
+      </ul>
+      <div class="note"><b>먹이그물 탐험대 선생님 메뉴</b> 첫 화면 오른쪽 위 🔒 → 코드 <code>2022</code> → 지도서 차시표, 시연용 전체 완료, 다음 반을 위한 기록 지우기</div>
+    </div>
+    <figure class="shot"><img src="shots/h12_site.jpg" alt="앱 첫 화면"><figcaption>학생이 보는 첫 화면</figcaption></figure>
+  </div>
+</section>
+
+<!-- ================= 비교·주의 ================= -->
+<section id="compare">
+  <div class="sec-head"><div class="badge" style="background:var(--sun);color:var(--ink)">⚖️</div><div><h2>무엇을 쓸까? · 꼭 지킬 것</h2></div></div>
+  <div style="overflow-x:auto"><table class="cmp">
+    <tr><th style="width:18%"></th><th class="gh">깃허브 Pages</th><th class="nf">넷리파이</th></tr>
+    <tr><td><b>주소</b></td><td><code>사용자이름.github.io/저장소이름/</code></td><td><code>프로젝트이름.netlify.app</code></td></tr>
+    <tr><td><b>장점</b></td><td>파일 보관 + 버전 기록 + 주소를 한 곳에서. 앱이 쌓일수록 '내 앱 창고'가 됨</td><td>가장 빠름(끌어다 놓기 몇 초). 폴더째·zip·HTML 하나도 OK</td></tr>
+    <tr><td><b>아쉬운 점</b></td><td>처음 설정 단계가 조금 많음, 반영 1~2분</td><td>무료 사용량 한도가 있음, 파일 기록은 깃허브만큼 자세하지 않음</td></tr>
+    <tr><td><b>추천</b></td><td>오래 쓸 앱, 계속 고쳐 나갈 앱</td><td>오늘 바로 써야 하는 앱, 연수 실습</td></tr>
+  </table></div>
+
+  <div class="qa" style="margin-top:16px">
+    <details open><summary>🔐 공개 저장소에 넣으면 안 되는 것</summary>학생 이름·사진·연락처, 비밀번호, <b>API 키</b>(제미나이 API 키 등). 공개 저장소는 전 세계 누구나 볼 수 있어요. API 키가 필요한 앱은 앱스 스크립트(Code.gs)처럼 숨길 수 있는 곳에 둡니다.</details>
+    <details><summary>🖼️ 그림 저작권은?</summary>직접 만든 그림(제미나이 생성 포함)과 사용 허락된 그림만 쓰세요. 캐릭터·노래·글꼴도 마찬가지입니다. 제미나이 이용 약관과 학교 방침을 확인하세요.</details>
+    <details><summary>📱 학생 진행 기록은 어디에 저장돼요?</summary>먹이그물 탐험대는 학생 기기의 브라우저(localStorage)에만 저장하고 어디로도 보내지 않습니다. 기기를 바꾸면 기록이 이어지지 않아요.</details>
+    <details><summary>🧩 그림이 엑스박스로 나와요</summary>① 파일 이름 대소문자 확인(<code>Frog.png</code> ≠ <code>frog.png</code>) ② images 폴더가 함께 올라갔는지 ③ 코드 속 경로(<code>images/org/frog.png</code>)와 실제 위치가 같은지 확인하세요.</details>
+    <details><summary>👶 학생 계정으로도 할 수 있나요?</summary>깃허브·넷리파이·제미나이는 연령 기준이 있어 초등학생 개인 가입은 권하지 않아요. <b>앱은 교사가 만들고, 학생은 주소로 사용</b>하는 방식이 안전합니다.</details>
+  </div>
+</section>
+
+</main>
+<footer>
+  2026 동현초등학교 바이브코딩 연수 · 명진초등학교 최일훈<br>
+  그림: Google Gemini로 직접 생성 · 화면 캡처: 2026. 10. 25. 기준 (서비스 화면은 바뀔 수 있어요)
+</footer>
+<script>
+document.querySelectorAll('.prompt .copy').forEach(b=>b.addEventListener('click',async()=>{
+  const t=b.parentElement.cloneNode(true); t.querySelectorAll('.copy,.tag').forEach(x=>x.remove());
+  const text=t.textContent.trim();
+  try{ await navigator.clipboard.writeText(text); b.textContent='복사됨!'; }
+  catch(e){ const r=document.createRange(); r.selectNodeContents(b.parentElement); const s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='선택됨 → Ctrl+C'; }
+  setTimeout(()=>b.textContent='복사',1800);
+}));
+</script>
+</body>
+</html>
